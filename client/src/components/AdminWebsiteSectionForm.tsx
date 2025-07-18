@@ -81,6 +81,13 @@ export default function AdminWebsiteSectionForm({ section, onClose }: AdminWebsi
     setIsSubmitting(true);
     try {
       await mutation.mutateAsync(data);
+    } catch (error) {
+      console.error("Failed to save website section:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save website section. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }

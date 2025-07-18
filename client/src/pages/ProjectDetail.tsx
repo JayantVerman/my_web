@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import type { Project } from "@shared/schema";
 
 export default function ProjectDetail() {
-  const [, params] = useRoute("/project/:id");
+  const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
 
   const { data: project, isLoading, error } = useQuery<Project>({

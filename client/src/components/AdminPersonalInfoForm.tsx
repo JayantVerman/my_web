@@ -87,6 +87,13 @@ export default function AdminPersonalInfoForm({ personalInfo, onClose }: AdminPe
     setIsSubmitting(true);
     try {
       await mutation.mutateAsync(data);
+    } catch (error) {
+      console.error("Failed to save personal info:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save personal information. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
