@@ -39,17 +39,14 @@ export default function AdminLogin() {
         title: "Login successful",
         description: "Welcome to the admin dashboard",
       });
-      // Use a small delay to ensure the token is properly set
-      setTimeout(() => {
-        setLocation("/admin/dashboard");
-      }, 100);
+      // Force navigation immediately after successful login
+      window.location.href = "/admin/dashboard";
     } catch (error) {
       toast({
         title: "Login failed",
         description: "Invalid username or password",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };

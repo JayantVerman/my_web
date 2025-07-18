@@ -1,8 +1,15 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Linkedin, Github, Twitter } from "lucide-react";
 
 export default function Footer() {
+  const [location] = useLocation();
+  
   const handleNavClick = (sectionId: string) => {
+    // If we're not on home page, navigate to home first
+    if (location !== "/") {
+      window.location.href = "/" + sectionId;
+      return;
+    }
     const element = document.querySelector(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -22,19 +29,25 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://linkedin.com/in/jayant-verma"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-400 hover:text-white transition-colors duration-200"
               >
                 <Linkedin size={20} />
               </a>
               <a
-                href="#"
+                href="https://github.com/jayant-verma"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-400 hover:text-white transition-colors duration-200"
               >
                 <Github size={20} />
               </a>
               <a
-                href="#"
+                href="https://twitter.com/jayant_verma"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-400 hover:text-white transition-colors duration-200"
               >
                 <Twitter size={20} />
@@ -89,18 +102,18 @@ export default function Footer() {
               © 2024 Jayant. All rights reserved.
             </div>
             <div className="flex space-x-6">
-              <a
-                href="#"
+              <button
+                onClick={() => handleNavClick("#contact")}
                 className="text-stone-400 hover:text-white transition-colors duration-200"
               >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
+                Get in Touch
+              </button>
+              <Link
+                href="/projects"
                 className="text-stone-400 hover:text-white transition-colors duration-200"
               >
-                Terms of Service
-              </a>
+                View Portfolio
+              </Link>
               <Link
                 href="/admin"
                 className="text-stone-400 hover:text-white transition-colors duration-200"
