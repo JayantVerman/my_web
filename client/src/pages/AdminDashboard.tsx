@@ -28,7 +28,14 @@ import AdminProjectForm from "@/components/AdminProjectForm";
 import AdminSkillForm from "@/components/AdminSkillForm";
 import AdminPersonalInfoForm from "@/components/AdminPersonalInfoForm";
 import AdminWebsiteSectionForm from "@/components/AdminWebsiteSectionForm";
-import type { Project, Contact, Skill, AuthUser, WebsiteSection, PersonalInfo } from "@shared/schema";
+import type { Project, Contact, Skill, WebsiteSection, PersonalInfo } from "@shared/schema";
+
+interface AuthUser {
+  id: number;
+  username: string;
+  email: string;
+  isAdmin: boolean;
+}
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -394,7 +401,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline">{project.category}</Badge>
                           <span className="text-sm text-stone-600">
-                            {new Date(project.createdAt).toLocaleDateString()}
+                            {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : ''}
                           </span>
                         </div>
                       </div>
@@ -523,7 +530,7 @@ export default function AdminDashboard() {
                           <p className="text-sm text-stone-600 mb-1">{contact.subject}</p>
                           <p className="text-sm text-stone-600 line-clamp-2">{contact.message}</p>
                           <p className="text-xs text-stone-500 mt-1">
-                            {new Date(contact.createdAt).toLocaleDateString()}
+                            {contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : ''}
                           </p>
                         </div>
                         <div className="flex space-x-2">
@@ -631,39 +638,57 @@ export default function AdminDashboard() {
                       No website sections yet.
                     </p>
                   ) : (
-                    websiteSections?.map((section) => (
-                      <div
-                        key={section.id}
-                        className="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-stone-800">{section.title}</h4>
-                            <Badge variant={section.isActive ? "default" : "secondary"} className="text-xs">
-                              {section.isActive ? "Active" : "Inactive"}
-                            </Badge>
+                    websiteSections
+                      ?.sort((a, b) => {
+                        // First sort by target page
+                        if (a.targetPage !== b.targetPage) {
+                          return a.targetPage === 'regular' ? -1 : 1;
+                        }
+                        // Then by order
+                        return (a.order ?? 0) - (b.order ?? 0);
+                      })
+                      .map((section) => (
+                        <div
+                          key={section.id}
+                          className="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-medium text-stone-800">{section.title}</h4>
+                              <Badge variant={section.isActive ? "default" : "secondary"} className="text-xs">
+                                {section.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {section.targetPage}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-stone-600">
+                              <span>Type: {section.sectionType}</span>
+                              <span>•</span>
+                              <span>Layout: {section.layout}</span>
+                              <span>•</span>
+                              <span>Order: {section.order}</span>
+                            </div>
+                            <p className="text-sm text-stone-600 mt-1">{section.sectionKey}</p>
                           </div>
-                          <p className="text-sm text-stone-600 mb-1">{section.sectionType}</p>
-                          <p className="text-sm text-stone-600">{section.sectionKey}</p>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditWebsiteSection(section)}
+                            >
+                              <Edit3 size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteWebsiteSectionMutation.mutate(section.id)}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditWebsiteSection(section)}
-                          >
-                            <Edit3 size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteWebsiteSectionMutation.mutate(section.id)}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               )}
@@ -713,7 +738,7 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <AdminWebsiteSectionForm
-              section={editingWebsiteSection}
+              websiteSection={editingWebsiteSection}
               onClose={handleCloseWebsiteSectionForm}
             />
           </div>

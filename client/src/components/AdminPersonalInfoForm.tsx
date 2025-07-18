@@ -61,23 +61,22 @@ export default function AdminPersonalInfoForm({ personalInfo, onClose }: AdminPe
 
   const mutation = useMutation({
     mutationFn: async (data: InsertPersonalInfo) => {
-      const method = personalInfo ? "PUT" : "POST";
-      const url = personalInfo ? `/api/personal-info/${personalInfo.id}` : "/api/personal-info";
-      const response = await apiRequest(method, url, data);
+      const response = await apiRequest("PUT", "/api/personal-info", data);
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: `Personal information ${personalInfo ? "updated" : "created"} successfully`,
+        description: `Personal information updated successfully`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/personal-info"] });
       onClose();
     },
     onError: (error) => {
+      console.error("Error saving personal info:", error);
       toast({
         title: "Error",
-        description: `Failed to ${personalInfo ? "update" : "create"} personal information`,
+        description: "Failed to save personal information. Please try again.",
         variant: "destructive",
       });
     },

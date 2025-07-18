@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,36 +7,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Layout, Type, Image, MousePointer, Hash, Eye, EyeOff } from "lucide-react";
 
 interface AdminWebsiteSectionFormProps {
-  section?: WebsiteSection;
+  websiteSection?: WebsiteSection;
   onClose: () => void;
 }
 
-export default function AdminWebsiteSectionForm({ section, onClose }: AdminWebsiteSectionFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function AdminWebsiteSectionForm({ websiteSection, onClose }: AdminWebsiteSectionFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const form = useForm<InsertWebsiteSection>({
     resolver: zodResolver(insertWebsiteSectionSchema),
-    defaultValues: section ? {
-      sectionKey: section.sectionKey,
-      title: section.title,
-      subtitle: section.subtitle || "",
-      content: section.content || "",
-      imageUrl: section.imageUrl || "",
-      buttonText: section.buttonText || "",
-      buttonUrl: section.buttonUrl || "",
-      order: section.order || 0,
-      isActive: section.isActive ?? true,
-      sectionType: section.sectionType,
-      customData: section.customData || "",
+    defaultValues: websiteSection ? {
+      sectionKey: websiteSection.sectionKey,
+      title: websiteSection.title,
+      subtitle: websiteSection.subtitle || "",
+      content: websiteSection.content || "",
+      imageUrl: websiteSection.imageUrl || "",
+      buttonText: websiteSection.buttonText || "",
+      buttonUrl: websiteSection.buttonUrl || "",
+      order: websiteSection.order || 0,
+      isActive: websiteSection.isActive ?? true,
+      sectionType: websiteSection.sectionType,
+      layout: websiteSection.layout || "vertical",
+      targetPage: websiteSection.targetPage || "regular",
+      columns: websiteSection.columns || 1,
+      gap: websiteSection.gap || "medium",
+      customData: websiteSection.customData || "",
     } : {
       sectionKey: "",
       title: "",
@@ -49,21 +50,25 @@ export default function AdminWebsiteSectionForm({ section, onClose }: AdminWebsi
       order: 0,
       isActive: true,
       sectionType: "custom",
+      layout: "vertical",
+      targetPage: "regular",
+      columns: 1,
+      gap: "medium",
       customData: "",
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (data: InsertWebsiteSection) => {
-      const method = section ? "PUT" : "POST";
-      const url = section ? `/api/website-sections/${section.id}` : "/api/website-sections";
+      const method = websiteSection ? "PUT" : "POST";
+      const url = websiteSection ? `/api/website-sections/${websiteSection.id}` : "/api/website-sections";
       const response = await apiRequest(method, url, data);
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: `Website section ${section ? "updated" : "created"} successfully`,
+        description: `Website section ${websiteSection ? "updated" : "created"} successfully`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/website-sections"] });
       onClose();
@@ -71,216 +76,218 @@ export default function AdminWebsiteSectionForm({ section, onClose }: AdminWebsi
     onError: (error) => {
       toast({
         title: "Error",
-        description: `Failed to ${section ? "update" : "create"} website section`,
+        description: `Failed to ${websiteSection ? "update" : "create"} website section`,
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = async (data: InsertWebsiteSection) => {
-    setIsSubmitting(true);
-    try {
-      await mutation.mutateAsync(data);
-    } catch (error) {
-      console.error("Failed to save website section:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save website section. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await mutation.mutateAsync(data);
   };
-
-  const sectionTypes = [
-    { value: "hero", label: "Hero Section" },
-    { value: "about", label: "About Section" },
-    { value: "services", label: "Services Section" },
-    { value: "cta", label: "Call to Action" },
-    { value: "custom", label: "Custom Section" },
-  ];
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Layout className="h-5 w-5" />
-          {section ? "Edit Website Section" : "Add Website Section"}
+        <CardTitle>
+          {websiteSection ? "Edit Website Section" : "Add Website Section"}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="sectionKey">Section Key</Label>
-                <div className="relative">
-                  <Hash className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="sectionKey"
-                    {...form.register("sectionKey")}
-                    placeholder="unique-section-key"
-                    className="pl-10"
-                  />
-                </div>
-                {form.formState.errors.sectionKey && (
-                  <p className="text-sm text-red-500">{form.formState.errors.sectionKey.message}</p>
-                )}
-              </div>
+            <div>
+              <Label htmlFor="sectionKey">Section Key</Label>
+              <Input
+                id="sectionKey"
+                {...form.register("sectionKey")}
+                placeholder="unique-section-key"
+              />
+              {form.formState.errors.sectionKey && (
+                <p className="text-sm text-red-500">{form.formState.errors.sectionKey.message}</p>
+              )}
+            </div>
 
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <div className="relative">
-                  <Type className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="title"
-                    {...form.register("title")}
-                    placeholder="Section title"
-                    className="pl-10"
-                  />
-                </div>
-                {form.formState.errors.title && (
-                  <p className="text-sm text-red-500">{form.formState.errors.title.message}</p>
-                )}
-              </div>
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                {...form.register("title")}
+                placeholder="Section Title"
+              />
+              {form.formState.errors.title && (
+                <p className="text-sm text-red-500">{form.formState.errors.title.message}</p>
+              )}
+            </div>
 
+            <div>
+              <Label htmlFor="subtitle">Subtitle</Label>
+              <Input
+                id="subtitle"
+                {...form.register("subtitle")}
+                placeholder="Section Subtitle"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input
+                id="imageUrl"
+                {...form.register("imageUrl")}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="buttonText">Button Text</Label>
+              <Input
+                id="buttonText"
+                {...form.register("buttonText")}
+                placeholder="Click Me"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="buttonUrl">Button URL</Label>
+              <Input
+                id="buttonUrl"
+                {...form.register("buttonUrl")}
+                placeholder="https://example.com"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="order">Display Order</Label>
+              <Input
+                id="order"
+                type="number"
+                {...form.register("order", { valueAsNumber: true })}
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="sectionType">Section Type</Label>
+              <Select
+                value={form.watch("sectionType")}
+                onValueChange={(value) => form.setValue("sectionType", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select section type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom">Custom</SelectItem>
+                  <SelectItem value="hero">Hero</SelectItem>
+                  <SelectItem value="about">About</SelectItem>
+                  <SelectItem value="services">Services</SelectItem>
+                  <SelectItem value="cta">Call to Action</SelectItem>
+                  <SelectItem value="card">Card</SelectItem>
+                  <SelectItem value="grid">Grid</SelectItem>
+                  <SelectItem value="timeline">Timeline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="targetPage">Target Page</Label>
+              <Select
+                value={form.watch("targetPage")}
+                onValueChange={(value) => form.setValue("targetPage", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target page" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="regular">Regular</SelectItem>
+                  <SelectItem value="freelance">Freelance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="layout">Layout</Label>
+              <Select
+                value={form.watch("layout")}
+                onValueChange={(value) => form.setValue("layout", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select layout" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vertical">Vertical</SelectItem>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                  <SelectItem value="grid">Grid</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {form.watch("layout") === "grid" && (
               <div>
-                <Label htmlFor="subtitle">Subtitle</Label>
+                <Label htmlFor="columns">Grid Columns</Label>
                 <Input
-                  id="subtitle"
-                  {...form.register("subtitle")}
-                  placeholder="Section subtitle (optional)"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="sectionType">Section Type</Label>
-                <Select
-                  value={form.watch("sectionType")}
-                  onValueChange={(value) => form.setValue("sectionType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select section type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectionTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.sectionType && (
-                  <p className="text-sm text-red-500">{form.formState.errors.sectionType.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="order">Display Order</Label>
-                <Input
-                  id="order"
+                  id="columns"
                   type="number"
-                  {...form.register("order", { valueAsNumber: true })}
-                  placeholder="0"
+                  min="1"
+                  max="4"
+                  {...form.register("columns", { valueAsNumber: true })}
+                  placeholder="1"
                 />
               </div>
+            )}
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={form.watch("isActive")}
-                  onCheckedChange={(checked) => form.setValue("isActive", checked)}
-                />
-                <Label htmlFor="isActive" className="flex items-center gap-2">
-                  {form.watch("isActive") ? (
-                    <>
-                      <Eye className="h-4 w-4" />
-                      Active
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="h-4 w-4" />
-                      Inactive
-                    </>
-                  )}
-                </Label>
-              </div>
+            <div>
+              <Label htmlFor="gap">Gap Size</Label>
+              <Select
+                value={form.watch("gap")}
+                onValueChange={(value) => form.setValue("gap", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gap size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <div className="relative">
-                  <Image className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="imageUrl"
-                    {...form.register("imageUrl")}
-                    placeholder="https://example.com/image.jpg"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+            <div className="col-span-2">
+              <Label htmlFor="content">Content (HTML)</Label>
+              <Textarea
+                id="content"
+                {...form.register("content")}
+                placeholder="<p>Your content here...</p>"
+                className="h-32"
+              />
+            </div>
 
-              <div>
-                <Label htmlFor="buttonText">Button Text</Label>
-                <div className="relative">
-                  <MousePointer className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="buttonText"
-                    {...form.register("buttonText")}
-                    placeholder="Click me"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+            <div className="col-span-2">
+              <Label htmlFor="customData">Custom Data (JSON)</Label>
+              <Textarea
+                id="customData"
+                {...form.register("customData")}
+                placeholder="{}"
+                className="h-32 font-mono"
+              />
+            </div>
 
-              <div>
-                <Label htmlFor="buttonUrl">Button URL</Label>
-                <Input
-                  id="buttonUrl"
-                  {...form.register("buttonUrl")}
-                  placeholder="https://example.com"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="customData">Custom Data (JSON)</Label>
-                <Textarea
-                  id="customData"
-                  {...form.register("customData")}
-                  placeholder='{"key": "value"}'
-                  rows={4}
-                />
-              </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={form.watch("isActive")}
+                onCheckedChange={(checked) => form.setValue("isActive", checked)}
+              />
+              <Label htmlFor="isActive">Active</Label>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              {...form.register("content")}
-              placeholder="Section content..."
-              rows={6}
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting ? "Saving..." : section ? "Update" : "Create"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
+          <div className="flex justify-end space-x-4">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
+            </Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {websiteSection ? "Update" : "Create"} Section
             </Button>
           </div>
         </form>

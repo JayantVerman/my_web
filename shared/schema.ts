@@ -116,7 +116,11 @@ export const websiteSections = pgTable("website_sections", {
   buttonUrl: text("button_url"),
   order: integer("order").default(0),
   isActive: boolean("is_active").default(true),
-  sectionType: text("section_type").notNull(), // 'hero', 'about', 'services', 'cta', 'custom'
+  sectionType: text("section_type").notNull(), // 'hero', 'about', 'services', 'cta', 'card', 'grid', 'timeline', 'custom'
+  layout: text("layout").default('vertical'), // 'horizontal', 'vertical', 'grid'
+  targetPage: text("target_page").default('regular'), // 'regular', 'freelance'
+  columns: integer("columns").default(1), // For grid layout
+  gap: text("gap").default('medium'), // 'small', 'medium', 'large'
   customData: text("custom_data"), // JSON string for additional data
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

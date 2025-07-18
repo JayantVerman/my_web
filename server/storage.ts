@@ -245,13 +245,26 @@ export class DatabaseStorage implements IStorage {
     return info;
   }
 
-  async updatePersonalInfo(id: number, updateData: Partial<InsertPersonalInfo>): Promise<PersonalInfo | undefined> {
-    const [info] = await db
-      .update(personalInfo)
-      .set({ ...updateData, updatedAt: new Date() })
-      .where(eq(personalInfo.id, id))
-      .returning();
-    return info || undefined;
+  async updatePersonalInfo(updateData: InsertPersonalInfo): Promise<PersonalInfo> {
+    // Get the first record or create if doesn't exist
+    let [info] = await db.select().from(personalInfo).limit(1);
+    
+    if (info) {
+      // Update existing record
+      [info] = await db
+        .update(personalInfo)
+        .set({ ...updateData, updatedAt: new Date() })
+        .where(eq(personalInfo.id, info.id))
+        .returning();
+    } else {
+      // Create new record
+      [info] = await db
+        .insert(personalInfo)
+        .values({ ...updateData, updatedAt: new Date() })
+        .returning();
+    }
+    
+    return info;
   }
 }
 

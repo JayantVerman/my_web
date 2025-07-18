@@ -286,37 +286,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Personal Information routes
+  // Personal Info routes
   app.get("/api/personal-info", async (req, res) => {
     try {
-      const info = await storage.getPersonalInfo();
-      res.json(info);
+      const personalInfo = await storage.getPersonalInfo();
+      res.json(personalInfo);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch personal information" });
+      res.status(500).json({ message: "Failed to fetch personal info" });
     }
   });
 
-  app.post("/api/personal-info", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+  app.put("/api/personal-info", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      const infoData = insertPersonalInfoSchema.parse(req.body);
-      const info = await storage.createPersonalInfo(infoData);
-      res.status(201).json(info);
+      const personalInfoData = insertPersonalInfoSchema.parse(req.body);
+      const personalInfo = await storage.updatePersonalInfo(personalInfoData);
+      res.json(personalInfo);
     } catch (error) {
-      res.status(400).json({ message: "Invalid personal information data" });
-    }
-  });
-
-  app.put("/api/personal-info/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const infoData = insertPersonalInfoSchema.partial().parse(req.body);
-      const info = await storage.updatePersonalInfo(id, infoData);
-      if (!info) {
-        return res.status(404).json({ message: "Personal information not found" });
-      }
-      res.json(info);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid personal information data" });
+      console.error("Error updating personal info:", error);
+      res.status(400).json({ message: "Failed to save personal information. Please try again." });
     }
   });
 

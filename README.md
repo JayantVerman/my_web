@@ -1,142 +1,119 @@
-# Jayant's Data Engineer Portfolio
+# Portfolio Website
 
-A professional full-stack portfolio website for a Data Engineer, built with React.js, Node.js, Express.js, and PostgreSQL.
+A modern, full-stack portfolio website built with React, Node.js, Express, and PostgreSQL.
 
-## 🚀 Features
+## Features
 
-- **Modern Tech Stack**: React.js, Node.js, Express.js, PostgreSQL
-- **Authentication**: JWT-based admin authentication with bcrypt password hashing
-- **Dynamic Content**: All projects and content managed through admin panel
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **Smooth Animations**: Framer Motion for professional animations
-- **Security**: Helmet.js, CORS, and secure password handling
-- **Professional Theme**: Cream-colored design with excellent contrast
+- 🎨 Modern and responsive design
+- 🔒 Admin dashboard for content management
+- 📱 Dynamic sections with multiple layouts
+- 🚀 Fast and optimized performance
+- 🔄 Real-time content updates
+- 📊 Project showcase with categories
+- 💼 Separate freelance section
+- 🎯 SEO optimized
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- React.js with TypeScript
+- React with TypeScript
 - Tailwind CSS for styling
-- Framer Motion for animations
-- Wouter for routing
-- React Hook Form for form handling
-- TanStack Query for API state management
 - Shadcn/ui components
+- Framer Motion for animations
+- TanStack Query for data fetching
 
 ### Backend
-- Node.js with Express.js
+- Node.js with Express
 - PostgreSQL database
-- Drizzle ORM for database operations
+- Drizzle ORM
 - JWT authentication
-- bcrypt for password hashing
-- Helmet.js for security headers
-- CORS for cross-origin requests
+- TypeScript
 
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
-- Node.js v18+ 
+- Node.js 18+
 - PostgreSQL 13+
 - npm or yarn
 
-### Local Setup
-1. **Clone/Download the project**
-2. **Run setup script**:
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
-   ```
-3. **Configure environment**:
-   - Edit `.env` with your database credentials
-   - Set a strong JWT_SECRET
-4. **Initialize database**:
-   ```bash
-   npm run db:push
-   ```
-5. **Start development**:
-   ```bash
-   npm run dev
-   ```
+### Installation
 
-Visit `http://localhost:5000` - Admin login: `admin/admin123`
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd portfolio-website
+```
 
-## 📖 Documentation
+2. Install dependencies:
+```bash
+npm install
+```
 
-- **[Local Setup Guide](LOCAL_SETUP.md)** - Complete local development setup
-- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Production deployment instructions
+3. Create a `.env` file:
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/database_name
+JWT_SECRET=your-secret-key
+NODE_ENV=development
+```
 
-## 🏗️ Project Structure
+4. Set up the database:
+```bash
+npm run db:push
+```
+
+5. Start the development server:
+```bash
+npm run dev
+```
+
+The site will be available at `http://localhost:5000`
+
+### Admin Access
+- URL: `http://localhost:5000/admin`
+- Default credentials:
+  - Username: `admin`
+  - Password: `admin123`
+
+## Project Structure
 
 ```
 ├── client/              # React frontend
 │   ├── src/
-│   │   ├── components/  # Reusable UI components
+│   │   ├── components/  # UI components
 │   │   ├── pages/       # Page components
-│   │   ├── lib/         # Utilities and configurations
-│   │   └── hooks/       # Custom React hooks
+│   │   ├── lib/         # Utilities
+│   │   └── hooks/       # Custom hooks
 ├── server/              # Express backend
 │   ├── index.ts         # Server entry point
 │   ├── routes.ts        # API routes
 │   ├── storage.ts       # Database operations
 │   └── db.ts           # Database connection
 ├── shared/              # Shared types and schemas
-│   └── schema.ts        # Database schema with Drizzle
-└── scripts/             # Build and utility scripts
+│   └── schema.ts        # Database schema
+└── scripts/             # Build scripts
 ```
 
-## 🔧 Development Scripts
+## Available Scripts
 
-```bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run db:push` - Update database schema
+- `npm run db:studio` - Open database UI
 
-# Database
-npm run db:push      # Push schema changes
-npm run db:studio    # Open database studio (if installed)
-```
+## Deployment
 
-## 🚀 Deployment
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
 
-### Recommended Platforms
-1. **Vercel** - Best for full-stack apps
-2. **Railway** - Simple deployment with database
-3. **Render** - Free tier available
-4. **DigitalOcean** - Scalable infrastructure
+## Contributing
 
-### Environment Variables
-```env
-DATABASE_URL=postgresql://user:pass@host:port/db
-JWT_SECRET=your-super-secret-jwt-key
-NODE_ENV=production
-CORS_ORIGIN=https://yourdomain.com
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
+## License
 
-## 🐛 Troubleshooting
-
-### Common Issues
-1. **Database connection errors**: Check DATABASE_URL format
-2. **Port conflicts**: Change port in `server/index.ts`
-3. **Build failures**: Verify Node.js version compatibility
-4. **Authentication issues**: Ensure JWT_SECRET is set
-
-### Debug Commands
-```bash
-# Reset everything if needed
-rm -rf node_modules dist && npm install
-```
-
-## 📱 Admin Features
-
-### Content Management
-- **Projects**: Create, edit, delete portfolio projects
-- **Skills**: Manage technical skills with categories
-- **Personal Info**: Update profile information
-- **Contacts**: View and manage contact submissions
-- **Website Sections**: Custom content management
-
-Access admin dashboard at `/admin/dashboard` with credentials: `admin/admin123`
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 

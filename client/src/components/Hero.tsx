@@ -1,7 +1,17 @@
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Hero() {
+  const { data: personalInfo } = useQuery({
+    queryKey: ["personalInfo"],
+    queryFn: async () => {
+      const response = await fetch("/api/personal-info");
+      if (!response.ok) throw new Error("Failed to fetch personal info");
+      return response.json();
+    }
+  });
+
   const handleScrollToSection = (sectionId: string) => {
     const element = document.querySelector(sectionId);
     if (element) {
@@ -26,7 +36,7 @@ export default function Hero() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-5xl lg:text-6xl font-bold text-stone-800 leading-tight"
               >
-                Hi, I'm <span className="text-blue-600">Jayant</span>
+                Hi, I'm <span className="text-blue-600">{personalInfo?.fullName || "Jayant"}</span>
               </motion.h1>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -34,7 +44,7 @@ export default function Hero() {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-2xl lg:text-3xl text-stone-600 font-medium"
               >
-                Data Engineer & Analytics Expert
+                {personalInfo?.title || "Data Engineer & Analytics Expert"}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -42,8 +52,7 @@ export default function Hero() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="text-lg text-stone-600 leading-relaxed"
               >
-                Transforming raw data into actionable insights through modern data engineering practices. 
-                Specialized in building scalable data pipelines and robust analytics solutions.
+                {personalInfo?.bio || "Transforming raw data into actionable insights through modern data engineering practices. Specialized in building scalable data pipelines and robust analytics solutions."}
               </motion.p>
             </div>
             
@@ -74,19 +83,25 @@ export default function Hero() {
               className="flex space-x-6"
             >
               <a
-                href="#"
+                href={personalInfo?.linkedinUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-600 hover:text-blue-600 transition-colors duration-200"
               >
                 <Linkedin size={32} />
               </a>
               <a
-                href="#"
+                href={personalInfo?.githubUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-600 hover:text-blue-600 transition-colors duration-200"
               >
                 <Github size={32} />
               </a>
               <a
-                href="#"
+                href={personalInfo?.twitterUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-stone-600 hover:text-blue-600 transition-colors duration-200"
               >
                 <Twitter size={32} />
@@ -104,8 +119,8 @@ export default function Hero() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full opacity-20 animate-float"></div>
               <div className="relative bg-white rounded-full p-4 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=800"
-                  alt="Jayant - Data Engineer"
+                  src={personalInfo?.profileImage || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=800"}
+                  alt={`${personalInfo?.fullName || "Jayant"} - ${personalInfo?.title || "Data Engineer"}`}
                   className="w-full h-auto rounded-full"
                 />
               </div>
