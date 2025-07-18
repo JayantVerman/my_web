@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeaders } from "@/lib/auth";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface AdminProjectFormProps {
   project?: Project | null;
@@ -142,17 +143,24 @@ export default function AdminProjectForm({ project, onClose, onSuccess }: AdminP
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   {...form.register("description")}
                   placeholder="Brief project description"
-                  rows={3}
                 />
                 {form.formState.errors.description && (
-                  <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>
+                  <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>
                 )}
+              </div>
+
+              <div className="col-span-2">
+                <ImageUpload
+                  label="Project Image"
+                  value={form.watch("imageUrl")?.toString() || ""}
+                  onChange={(value) => form.setValue("imageUrl", value)}
+                />
               </div>
 
               <div className="space-y-2">
@@ -165,18 +173,6 @@ export default function AdminProjectForm({ project, onClose, onSuccess }: AdminP
                 />
                 {form.formState.errors.longDescription && (
                   <p className="text-red-500 text-sm">{form.formState.errors.longDescription.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input
-                  id="imageUrl"
-                  {...form.register("imageUrl")}
-                  placeholder="https://example.com/image.jpg"
-                />
-                {form.formState.errors.imageUrl && (
-                  <p className="text-red-500 text-sm">{form.formState.errors.imageUrl.message}</p>
                 )}
               </div>
 

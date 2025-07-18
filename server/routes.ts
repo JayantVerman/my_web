@@ -6,6 +6,42 @@ import { insertProjectSchema, insertContactSchema, insertSkillSchema, insertWebs
 import bcrypt from "bcryptjs";
 import helmet from "helmet";
 import cors from "cors";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Configure multer for image upload
+const uploadDir = path.join(process.cwd(), "public/uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    const filetypes = /jpeg|jpg|png|gif|webp/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error("Only image files are allowed!"));
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Security middleware
@@ -306,6 +342,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ message: "Failed to save personal information. Please try again." });
     }
   });
+
+  // Image upload endpoint
+  app.post("/api/upload", authenticateToken, requireAdmin, upload.single("image"), (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Return the URL for the uploaded file
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  // Serve uploaded files
+  app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
 
   const httpServer = createServer(app);
   return httpServer;

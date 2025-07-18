@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User, Mail, Phone, MapPin, Calendar, Briefcase, Building2 } from "lucide-react";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface AdminPersonalInfoFormProps {
   personalInfo?: PersonalInfo;
@@ -256,8 +257,26 @@ export default function AdminPersonalInfoForm({ personalInfo, onClose }: AdminPe
               <Textarea
                 id="bio"
                 {...form.register("bio")}
-                placeholder="Tell us about yourself..."
-                rows={4}
+                placeholder="Tell us about yourself"
+                className="h-32"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <ImageUpload
+                label="Profile Image"
+                value={form.watch("profileImage")?.toString() || ""}
+                onChange={(value) => form.setValue("profileImage", value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                {...form.register("email")}
+                placeholder="your.email@example.com"
               />
             </div>
 

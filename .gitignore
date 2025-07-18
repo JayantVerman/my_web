@@ -41,3 +41,7 @@ coverage/
 .tmp/
 temp/
 tmp/
+
+# Uploaded files
+public/uploads/*
+!public/uploads/.gitkeep

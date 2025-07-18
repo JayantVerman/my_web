@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface AdminWebsiteSectionFormProps {
   websiteSection?: WebsiteSection;
@@ -129,12 +130,11 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
               />
             </div>
 
-            <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                {...form.register("imageUrl")}
-                placeholder="https://example.com/image.jpg"
+            <div className="col-span-2">
+              <ImageUpload
+                label="Image"
+                value={form.watch("imageUrl")?.toString() || ""}
+                onChange={(value) => form.setValue("imageUrl", value)}
               />
             </div>
 
@@ -169,7 +169,7 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
             <div>
               <Label htmlFor="sectionType">Section Type</Label>
               <Select
-                value={form.watch("sectionType")}
+                value={form.watch("sectionType")?.toString() || "custom"}
                 onValueChange={(value) => form.setValue("sectionType", value)}
               >
                 <SelectTrigger>
@@ -191,7 +191,7 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
             <div>
               <Label htmlFor="targetPage">Target Page</Label>
               <Select
-                value={form.watch("targetPage")}
+                value={form.watch("targetPage")?.toString() || "regular"}
                 onValueChange={(value) => form.setValue("targetPage", value)}
               >
                 <SelectTrigger>
@@ -207,7 +207,7 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
             <div>
               <Label htmlFor="layout">Layout</Label>
               <Select
-                value={form.watch("layout")}
+                value={form.watch("layout")?.toString() || "vertical"}
                 onValueChange={(value) => form.setValue("layout", value)}
               >
                 <SelectTrigger>
@@ -238,7 +238,7 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
             <div>
               <Label htmlFor="gap">Gap Size</Label>
               <Select
-                value={form.watch("gap")}
+                value={form.watch("gap")?.toString() || "medium"}
                 onValueChange={(value) => form.setValue("gap", value)}
               >
                 <SelectTrigger>
@@ -275,7 +275,7 @@ export default function AdminWebsiteSectionForm({ websiteSection, onClose }: Adm
             <div className="flex items-center space-x-2">
               <Switch
                 id="isActive"
-                checked={form.watch("isActive")}
+                checked={form.watch("isActive") ?? true}
                 onCheckedChange={(checked) => form.setValue("isActive", checked)}
               />
               <Label htmlFor="isActive">Active</Label>
