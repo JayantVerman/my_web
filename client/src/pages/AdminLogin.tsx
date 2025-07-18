@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { login, isAuthenticated } from "@/lib/auth";
-import { Lock, User } from "lucide-react";
+import { Lock, User, ArrowLeft } from "lucide-react";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -59,6 +59,16 @@ export default function AdminLogin() {
         transition={{ duration: 0.8 }}
         className="w-full max-w-md"
       >
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-stone-600 hover:text-stone-800 transition-colors duration-200"
+          >
+            <ArrowLeft size={20} className="mr-2" />
+            Back to Main Website
+          </Link>
+        </div>
+        
         <Card className="shadow-2xl">
           <CardHeader className="text-center">
             <CardTitle className="text-3xl font-bold text-stone-800">
