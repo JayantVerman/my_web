@@ -11,7 +11,8 @@ import {
   Trash2, 
   LogOut,
   Eye,
-  EyeOff
+  EyeOff,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,13 +21,16 @@ import { useToast } from "@/hooks/use-toast";
 import { verifyToken, logout, getAuthHeaders } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
 import AdminProjectForm from "@/components/AdminProjectForm";
-import type { Project, Contact, AuthUser } from "@shared/schema";
+import AdminSkillForm from "@/components/AdminSkillForm";
+import type { Project, Contact, Skill, AuthUser } from "@shared/schema";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -56,6 +60,11 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error("Failed to fetch contacts");
       return response.json();
     },
+    enabled: !!user,
+  });
+
+  const { data: skills, isLoading: skillsLoading } = useQuery<Skill[]>({
+    queryKey: ["/api/skills"],
     enabled: !!user,
   });
 
@@ -134,6 +143,31 @@ export default function AdminDashboard() {
     },
   });
 
+  const deleteSkillMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/skills/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error("Failed to delete skill");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/skills"] });
+      toast({
+        title: "Skill deleted",
+        description: "The skill has been successfully deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error deleting skill",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleLogout = () => {
     logout();
     setLocation("/admin");
@@ -147,6 +181,16 @@ export default function AdminDashboard() {
   const handleCloseProjectForm = () => {
     setShowProjectForm(false);
     setEditingProject(null);
+  };
+
+  const handleEditSkill = (skill: Skill) => {
+    setEditingSkill(skill);
+    setShowSkillForm(true);
+  };
+
+  const handleCloseSkillForm = () => {
+    setShowSkillForm(false);
+    setEditingSkill(null);
   };
 
   if (!user) {
@@ -165,6 +209,7 @@ export default function AdminDashboard() {
     contactMessages: contacts?.length || 0,
     freelanceProjects: projects?.filter(p => p.category === 'freelance').length || 0,
     unreadContacts: contacts?.filter(c => !c.isRead).length || 0,
+    totalSkills: skills?.length || 0,
   };
 
   return (
@@ -190,7 +235,7 @@ export default function AdminDashboard() {
 
       <div className="container mx-auto px-6 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -231,6 +276,18 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
+                  <p className="text-sm text-stone-600">Skills</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.totalSkills}</p>
+                </div>
+                <Settings className="text-purple-600" size={24} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
                   <p className="text-sm text-stone-600">Unread Messages</p>
                   <p className="text-2xl font-bold text-red-600">{stats.unreadContacts}</p>
                 </div>
@@ -240,7 +297,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Projects Management */}
           <Card>
             <CardHeader>
@@ -293,6 +350,72 @@ export default function AdminDashboard() {
                           variant="ghost"
                           size="sm"
                           onClick={() => deleteProjectMutation.mutate(project.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Skills Management */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Skills</CardTitle>
+                <Button
+                  onClick={() => setShowSkillForm(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  Add Skill
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {skillsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-stone-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-stone-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {skills?.map((skill) => (
+                    <div
+                      key={skill.id}
+                      className="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 ${skill.color} rounded-lg flex items-center justify-center`}>
+                          <span className="text-white text-xs font-semibold">{skill.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-stone-800">{skill.name}</h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline">{skill.category}</Badge>
+                            <span className="text-sm text-stone-600">Order: {skill.order}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditSkill(skill)}
+                        >
+                          <Edit3 size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteSkillMutation.mutate(skill.id)}
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -377,6 +500,18 @@ export default function AdminDashboard() {
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
             handleCloseProjectForm();
+          }}
+        />
+      )}
+
+      {/* Skill Form Modal */}
+      {showSkillForm && (
+        <AdminSkillForm
+          skill={editingSkill}
+          onClose={handleCloseSkillForm}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["/api/skills"] });
+            handleCloseSkillForm();
           }}
         />
       )}

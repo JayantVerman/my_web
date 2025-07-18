@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticateToken, requireAdmin, generateToken, type AuthenticatedRequest } from "./middleware/auth";
-import { insertProjectSchema, insertContactSchema, loginSchema } from "@shared/schema";
+import { insertProjectSchema, insertContactSchema, insertSkillSchema, loginSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import helmet from "helmet";
 import cors from "cors";
@@ -177,6 +177,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(testimonials);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch testimonials" });
+    }
+  });
+
+  // Skill routes
+  app.get("/api/skills", async (req, res) => {
+    try {
+      const skills = await storage.getActiveSkills();
+      res.json(skills);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch skills" });
+    }
+  });
+
+  app.post("/api/skills", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const skillData = insertSkillSchema.parse(req.body);
+      const skill = await storage.createSkill(skillData);
+      res.status(201).json(skill);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid skill data" });
+    }
+  });
+
+  app.put("/api/skills/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const skillData = insertSkillSchema.partial().parse(req.body);
+      const skill = await storage.updateSkill(id, skillData);
+      if (!skill) {
+        return res.status(404).json({ message: "Skill not found" });
+      }
+      res.json(skill);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid skill data" });
+    }
+  });
+
+  app.delete("/api/skills/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteSkill(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Skill not found" });
+      }
+      res.json({ message: "Skill deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete skill" });
     }
   });
 

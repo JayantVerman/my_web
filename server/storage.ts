@@ -1,4 +1,4 @@
-import { users, projects, contacts, testimonials, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial } from "@shared/schema";
+import { users, projects, contacts, testimonials, skills, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial, type Skill, type InsertSkill } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -29,6 +29,13 @@ export interface IStorage {
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   updateTestimonial(id: number, testimonial: Partial<InsertTestimonial>): Promise<Testimonial | undefined>;
   deleteTestimonial(id: number): Promise<boolean>;
+  
+  // Skill methods
+  getSkills(): Promise<Skill[]>;
+  getActiveSkills(): Promise<Skill[]>;
+  createSkill(skill: InsertSkill): Promise<Skill>;
+  updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill | undefined>;
+  deleteSkill(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -146,6 +153,37 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTestimonial(id: number): Promise<boolean> {
     const result = await db.delete(testimonials).where(eq(testimonials.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Skill methods
+  async getSkills(): Promise<Skill[]> {
+    return await db.select().from(skills).orderBy(skills.order, skills.name);
+  }
+
+  async getActiveSkills(): Promise<Skill[]> {
+    return await db.select().from(skills).where(eq(skills.isActive, true)).orderBy(skills.order, skills.name);
+  }
+
+  async createSkill(insertSkill: InsertSkill): Promise<Skill> {
+    const [skill] = await db
+      .insert(skills)
+      .values(insertSkill)
+      .returning();
+    return skill;
+  }
+
+  async updateSkill(id: number, updateData: Partial<InsertSkill>): Promise<Skill | undefined> {
+    const [skill] = await db
+      .update(skills)
+      .set(updateData)
+      .where(eq(skills.id, id))
+      .returning();
+    return skill || undefined;
+  }
+
+  async deleteSkill(id: number): Promise<boolean> {
+    const result = await db.delete(skills).where(eq(skills.id, id));
     return (result.rowCount ?? 0) > 0;
   }
 }

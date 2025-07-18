@@ -49,6 +49,17 @@ export const testimonials = pgTable("testimonials", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const skills = pgTable("skills", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  color: text("color").notNull(),
+  category: text("category").notNull(), // 'frontend', 'backend', 'data', 'devops'
+  isActive: boolean("is_active").default(true),
+  order: integer("order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -71,6 +82,11 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   createdAt: true,
 });
 
+export const insertSkillSchema = createInsertSchema(skills).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
@@ -84,4 +100,6 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 export type Contact = typeof contacts.$inferSelect;
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
 export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type Skill = typeof skills.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;

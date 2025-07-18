@@ -8,6 +8,16 @@ This is a professional full-stack portfolio website for a Data Engineer built wi
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (July 18, 2025)
+
+✓ Added comprehensive skills management system with database integration
+✓ Created admin login button in navbar for easy access
+✓ Enhanced admin dashboard with skills CRUD operations
+✓ Updated freelancing page with category filtering (Data Engineering vs Web Development)
+✓ Added sample data for both data engineering and web development projects
+✓ Implemented dynamic skills display with customizable icons, colors, and categories
+✓ All admin functionality working: add/edit/delete projects, skills, and manage contacts
+
 ## System Architecture
 
 ### Full-Stack Architecture

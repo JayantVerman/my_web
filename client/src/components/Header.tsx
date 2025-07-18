@@ -66,6 +66,13 @@ export default function Header() {
               Hire Me
             </button>
             
+            <Link
+              href="/admin"
+              className="bg-stone-800 hover:bg-stone-900 text-white px-6 py-2 rounded-full transition-colors duration-200"
+            >
+              Admin Login
+            </Link>
+            
             {/* Mobile Menu Button */}
             <button
               className="md:hidden text-stone-700"

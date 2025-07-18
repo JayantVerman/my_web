@@ -56,6 +56,38 @@ async function seedData() {
         category: "freelance",
         featured: false,
       },
+      {
+        title: "React E-commerce Platform",
+        description: "Built a modern e-commerce platform with React, Node.js, and MongoDB featuring real-time inventory management and payment processing.",
+        longDescription: "Developed a full-stack e-commerce platform for a retail client looking to expand their online presence. The platform handles thousands of products and processes hundreds of orders daily.\n\nKey features:\n- Modern React frontend with responsive design\n- Node.js/Express backend with RESTful APIs\n- MongoDB for flexible product catalog\n- Stripe integration for secure payments\n- Real-time inventory tracking\n- Admin dashboard for order management\n- Email notifications and order tracking\n\nPerformance optimizations:\n- Image optimization and lazy loading\n- Database query optimization\n- Caching with Redis\n- CDN integration for static assets",
+        imageUrl: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        technologies: ["React", "Node.js", "MongoDB", "Express", "Stripe", "Redis"],
+        githubUrl: "https://github.com/jayant/ecommerce-platform",
+        liveUrl: "https://ecommerce-demo.example.com",
+        category: "freelance",
+        featured: false,
+      },
+      {
+        title: "Task Management SaaS Application",
+        description: "Developed a comprehensive task management SaaS with real-time collaboration, team workspaces, and advanced reporting features.",
+        longDescription: "Created a full-featured task management SaaS application for remote teams and project managers. The application supports multiple workspaces, real-time collaboration, and comprehensive project tracking.\n\nCore features:\n- Real-time collaboration with Socket.io\n- Team workspaces and project organization\n- Kanban boards and Gantt charts\n- Time tracking and reporting\n- File attachments and comments\n- Role-based access control\n- Email notifications and reminders\n\nTechnical highlights:\n- Microservices architecture with Docker\n- Redis for session management and caching\n- PostgreSQL for data persistence\n- JWT authentication with refresh tokens\n- Comprehensive test coverage with Jest\n- CI/CD pipeline with GitHub Actions",
+        imageUrl: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        technologies: ["React", "Node.js", "PostgreSQL", "Socket.io", "Docker", "Redis"],
+        githubUrl: "https://github.com/jayant/task-management-saas",
+        liveUrl: "https://taskmanager-demo.example.com",
+        category: "freelance",
+        featured: false,
+      },
+      {
+        title: "Corporate Dashboard with Next.js",
+        description: "Built a comprehensive corporate dashboard using Next.js, GraphQL, and PostgreSQL for real-time business intelligence and analytics.",
+        longDescription: "Developed a modern corporate dashboard for a Fortune 500 company to visualize key business metrics, sales performance, and operational data in real-time.\n\nFeatures implemented:\n- Server-side rendering with Next.js for optimal performance\n- GraphQL API for efficient data fetching\n- Real-time updates using WebSocket connections\n- Interactive charts and visualizations with D3.js\n- Role-based access control for different user levels\n- Export functionality for reports and charts\n- Mobile-responsive design for executive access\n\nPerformance achievements:\n- 95+ Lighthouse performance score\n- Sub-second page load times\n- Real-time data updates with <100ms latency\n- Handles 10,000+ concurrent users\n- 99.9% uptime SLA compliance",
+        imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        technologies: ["Next.js", "GraphQL", "PostgreSQL", "D3.js", "WebSocket", "TypeScript"],
+        githubUrl: "https://github.com/jayant/corporate-dashboard",
+        category: "freelance",
+        featured: false,
+      },
     ];
 
     // Sample testimonials
