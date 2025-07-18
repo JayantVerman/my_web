@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Star, ArrowRight, Database, BarChart3, Cloud, Code, Globe } from "lucide-react";
+import { Star, ArrowRight, Database, BarChart3, Cloud, Code, Globe, ExternalLink, Github } from "lucide-react";
+import { Link } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProjectCard from "@/components/ProjectCard";
@@ -259,13 +260,13 @@ export default function Freelancing() {
                       )}
                     </div>
                     <div className="flex justify-between items-center">
-                      <a
+                      <Link
                         href={`/projects/${project.id}`}
                         className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
                       >
                         View Details
                         <ArrowRight size={16} className="ml-1" />
-                      </a>
+                      </Link>
                       <div className="flex space-x-3">
                         {project.githubUrl && (
                           <a
@@ -274,7 +275,7 @@ export default function Freelancing() {
                             rel="noopener noreferrer"
                             className="text-stone-600 hover:text-stone-800 transition-colors"
                           >
-                            <Database size={20} />
+                            <Github size={20} />
                           </a>
                         )}
                         {project.liveUrl && (
@@ -284,7 +285,7 @@ export default function Freelancing() {
                             rel="noopener noreferrer"
                             className="text-stone-600 hover:text-stone-800 transition-colors"
                           >
-                            <Globe size={20} />
+                            <ExternalLink size={20} />
                           </a>
                         )}
                       </div>

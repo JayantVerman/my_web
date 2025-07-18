@@ -39,7 +39,10 @@ export default function AdminLogin() {
         title: "Login successful",
         description: "Welcome to the admin dashboard",
       });
-      setLocation("/admin/dashboard");
+      // Use a small delay to ensure the token is properly set
+      setTimeout(() => {
+        setLocation("/admin/dashboard");
+      }, 100);
     } catch (error) {
       toast({
         title: "Login failed",

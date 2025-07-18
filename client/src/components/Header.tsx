@@ -18,6 +18,11 @@ export default function Header() {
     setIsMenuOpen(false);
     
     if (href.startsWith("#")) {
+      // If we're not on home page, navigate to home first
+      if (location !== "/") {
+        window.location.href = "/" + href;
+        return;
+      }
       // Smooth scroll to section
       const element = document.querySelector(href);
       if (element) {
