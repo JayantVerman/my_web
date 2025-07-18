@@ -1,0 +1,60 @@
+Build a professional, clean, and dynamic full-stack portfolio website for a Data Engineer.
+
+🚀 Tech Stack:
+- Frontend: React.js (with modular components, separate folders per section)
+- Backend: Node.js with Express.js
+- Authentication: JWT-based login for Admin Panel
+- Database: PostgreSQL (with Sequelize ORM)
+- Styling: Tailwind CSS with a cream-colored professional theme (use soft complementary colors, good contrast, and accessible typography)
+- Encryption: bcrypt for password hashing and decryption as needed
+- Deployment-ready: add clear code comments for how to set up production deployment (on Vercel, Render, or similar)
+
+🧩 Requirements:
+1. **Home Page:**
+   - Professional introduction as a Data Engineer
+   - Display expertise: Python, AWS, Spark SQL, PySpark, PostgreSQL, MongoDB, Snowflake, Git
+   - Smooth animated sections using Framer Motion (or similar)
+   - Showcase portfolio projects dynamically from the database
+   - “Hire Me” call-to-action button
+   - Include contact form (form data should go to the database)
+
+2. **Freelancing Section:**
+   - Separate landing page for Freelancing Work (route: `/freelancing`)
+   - This should have a different feel but still follow the main design language
+   - Dynamic display of freelance projects (from DB)
+   - Optional client testimonials section
+
+3. **Admin Panel:**
+   - Accessible only via `/admin` route (secured by login page)
+   - Login using JWT + bcrypt (Admin credentials stored securely in DB)
+   - After login, admin can:
+     - Add / Edit / Delete Projects (both regular and freelance)
+     - Manage contact queries
+   - Simple and clean dashboard UI using React components
+
+4. **Project Pages:**
+   - Clicking on any project opens a new page with detailed info
+   - URL route should follow `/project/:id`
+
+5. **Component Structure:**
+   - Each major section (Header, Footer, Hero, Projects, Freelance, Contact, Admin, Login, etc.) should be separate components in React
+   - Maintain `src/components/` and `src/pages/` folders cleanly
+
+6. **Backend API Routes:**
+   - `/api/projects` — GET, POST, PUT, DELETE
+   - `/api/freelance` — GET, POST, PUT, DELETE
+   - `/api/auth/login` — POST (JWT token return)
+   - `/api/contact` — POST, GET (Admin only)
+   - Use `.env` file for all credentials and secret keys
+
+7. **Security:**
+   - Hash passwords with bcrypt
+   - Use JWT for auth tokens with expiry
+   - Use Helmet.js and CORS for secure backend setup
+
+📦 Add a `requirements.txt` equivalent in backend as `package.json`, and for frontend add dependencies list in comments.
+
+📄 Also generate:
+- `.env.example` file
+- README.md with instructions for local and production deployment
+- Directory structure properly
