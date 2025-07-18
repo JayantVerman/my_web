@@ -38,8 +38,10 @@ export default function AdminDashboard() {
     const checkAuth = async () => {
       const verifiedUser = await verifyToken();
       if (!verifiedUser || !verifiedUser.isAdmin) {
+        console.log("Authentication failed, redirecting to login");
         setLocation("/admin");
       } else {
+        console.log("Authentication successful, user:", verifiedUser);
         setUser(verifiedUser);
       }
     };

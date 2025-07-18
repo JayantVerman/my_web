@@ -45,6 +45,7 @@ export const verifyToken = async (): Promise<AuthUser | null> => {
   
   try {
     const response = await fetch("/api/auth/verify", {
+      method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
     
