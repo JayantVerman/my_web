@@ -12,17 +12,23 @@ import {
   LogOut,
   Eye,
   EyeOff,
-  Settings
+  Settings,
+  Layout,
+  User,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { verifyToken, logout, getAuthHeaders } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
 import AdminProjectForm from "@/components/AdminProjectForm";
 import AdminSkillForm from "@/components/AdminSkillForm";
-import type { Project, Contact, Skill, AuthUser } from "@shared/schema";
+import AdminPersonalInfoForm from "@/components/AdminPersonalInfoForm";
+import AdminWebsiteSectionForm from "@/components/AdminWebsiteSectionForm";
+import type { Project, Contact, Skill, AuthUser, WebsiteSection, PersonalInfo } from "@shared/schema";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -31,6 +37,9 @@ export default function AdminDashboard() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showSkillForm, setShowSkillForm] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [showPersonalInfoForm, setShowPersonalInfoForm] = useState(false);
+  const [showWebsiteSectionForm, setShowWebsiteSectionForm] = useState(false);
+  const [editingWebsiteSection, setEditingWebsiteSection] = useState<WebsiteSection | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -67,6 +76,16 @@ export default function AdminDashboard() {
 
   const { data: skills, isLoading: skillsLoading } = useQuery<Skill[]>({
     queryKey: ["/api/skills"],
+    enabled: !!user,
+  });
+
+  const { data: websiteSections, isLoading: websiteSectionsLoading } = useQuery<WebsiteSection[]>({
+    queryKey: ["/api/website-sections"],
+    enabled: !!user,
+  });
+
+  const { data: personalInfo, isLoading: personalInfoLoading } = useQuery<PersonalInfo>({
+    queryKey: ["/api/personal-info"],
     enabled: !!user,
   });
 
@@ -170,6 +189,31 @@ export default function AdminDashboard() {
     },
   });
 
+  const deleteWebsiteSectionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/website-sections/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error("Failed to delete website section");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/website-sections"] });
+      toast({
+        title: "Website section deleted",
+        description: "The website section has been successfully deleted.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error deleting website section",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleLogout = () => {
     logout();
     setLocation("/admin");
@@ -193,6 +237,20 @@ export default function AdminDashboard() {
   const handleCloseSkillForm = () => {
     setShowSkillForm(false);
     setEditingSkill(null);
+  };
+
+  const handleEditWebsiteSection = (section: WebsiteSection) => {
+    setEditingWebsiteSection(section);
+    setShowWebsiteSectionForm(true);
+  };
+
+  const handleCloseWebsiteSectionForm = () => {
+    setShowWebsiteSectionForm(false);
+    setEditingWebsiteSection(null);
+  };
+
+  const handleClosePersonalInfoForm = () => {
+    setShowPersonalInfoForm(false);
   };
 
   if (!user) {
@@ -492,6 +550,126 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+        
+        {/* Additional Management Cards */}
+        <div className="grid lg:grid-cols-2 gap-8 mt-8">
+          {/* Personal Info Management */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Personal Info
+                </CardTitle>
+                <Button
+                  onClick={() => setShowPersonalInfoForm(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit3 size={16} />
+                  {personalInfo ? "Edit" : "Add"}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {personalInfoLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-stone-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-stone-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : personalInfo ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-stone-50 rounded-lg">
+                    <h4 className="font-medium text-stone-800 mb-1">{personalInfo.fullName}</h4>
+                    <p className="text-sm text-stone-600 mb-1">{personalInfo.title}</p>
+                    <p className="text-sm text-stone-600 mb-1">{personalInfo.email}</p>
+                    <p className="text-sm text-stone-600">{personalInfo.location}</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-stone-600 text-center py-8">
+                  No personal information added yet.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Website Sections Management */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Layout className="h-5 w-5" />
+                  Website Sections
+                </CardTitle>
+                <Button
+                  onClick={() => setShowWebsiteSectionForm(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  Add Section
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {websiteSectionsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-stone-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-stone-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {websiteSections?.length === 0 ? (
+                    <p className="text-stone-600 text-center py-8">
+                      No website sections yet.
+                    </p>
+                  ) : (
+                    websiteSections?.map((section) => (
+                      <div
+                        key={section.id}
+                        className="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-stone-800">{section.title}</h4>
+                            <Badge variant={section.isActive ? "default" : "secondary"} className="text-xs">
+                              {section.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-stone-600 mb-1">{section.sectionType}</p>
+                          <p className="text-sm text-stone-600">{section.sectionKey}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditWebsiteSection(section)}
+                          >
+                            <Edit3 size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteWebsiteSectionMutation.mutate(section.id)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Project Form Modal */}
@@ -516,6 +694,30 @@ export default function AdminDashboard() {
             handleCloseSkillForm();
           }}
         />
+      )}
+
+      {/* Personal Info Form Modal */}
+      {showPersonalInfoForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <AdminPersonalInfoForm
+              personalInfo={personalInfo}
+              onClose={handleClosePersonalInfoForm}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Website Section Form Modal */}
+      {showWebsiteSectionForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <AdminWebsiteSectionForm
+              section={editingWebsiteSection}
+              onClose={handleCloseWebsiteSectionForm}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

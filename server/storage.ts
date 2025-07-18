@@ -1,4 +1,4 @@
-import { users, projects, contacts, testimonials, skills, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial, type Skill, type InsertSkill } from "@shared/schema";
+import { users, projects, contacts, testimonials, skills, websiteSections, personalInfo, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial, type Skill, type InsertSkill, type WebsiteSection, type InsertWebsiteSection, type PersonalInfo, type InsertPersonalInfo } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -36,6 +36,18 @@ export interface IStorage {
   createSkill(skill: InsertSkill): Promise<Skill>;
   updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill | undefined>;
   deleteSkill(id: number): Promise<boolean>;
+
+  // Website Sections methods
+  getWebsiteSections(): Promise<WebsiteSection[]>;
+  getWebsiteSectionByKey(sectionKey: string): Promise<WebsiteSection | undefined>;
+  createWebsiteSection(section: InsertWebsiteSection): Promise<WebsiteSection>;
+  updateWebsiteSection(id: number, section: Partial<InsertWebsiteSection>): Promise<WebsiteSection | undefined>;
+  deleteWebsiteSection(id: number): Promise<boolean>;
+
+  // Personal Information methods
+  getPersonalInfo(): Promise<PersonalInfo | undefined>;
+  createPersonalInfo(info: InsertPersonalInfo): Promise<PersonalInfo>;
+  updatePersonalInfo(id: number, info: Partial<InsertPersonalInfo>): Promise<PersonalInfo | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -185,6 +197,61 @@ export class DatabaseStorage implements IStorage {
   async deleteSkill(id: number): Promise<boolean> {
     const result = await db.delete(skills).where(eq(skills.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // Website Sections methods
+  async getWebsiteSections(): Promise<WebsiteSection[]> {
+    return await db.select().from(websiteSections).orderBy(websiteSections.order, websiteSections.createdAt);
+  }
+
+  async getWebsiteSectionByKey(sectionKey: string): Promise<WebsiteSection | undefined> {
+    const [section] = await db.select().from(websiteSections).where(eq(websiteSections.sectionKey, sectionKey));
+    return section || undefined;
+  }
+
+  async createWebsiteSection(insertSection: InsertWebsiteSection): Promise<WebsiteSection> {
+    const [section] = await db
+      .insert(websiteSections)
+      .values(insertSection)
+      .returning();
+    return section;
+  }
+
+  async updateWebsiteSection(id: number, updateData: Partial<InsertWebsiteSection>): Promise<WebsiteSection | undefined> {
+    const [section] = await db
+      .update(websiteSections)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(websiteSections.id, id))
+      .returning();
+    return section || undefined;
+  }
+
+  async deleteWebsiteSection(id: number): Promise<boolean> {
+    const result = await db.delete(websiteSections).where(eq(websiteSections.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Personal Information methods
+  async getPersonalInfo(): Promise<PersonalInfo | undefined> {
+    const [info] = await db.select().from(personalInfo).limit(1);
+    return info || undefined;
+  }
+
+  async createPersonalInfo(insertInfo: InsertPersonalInfo): Promise<PersonalInfo> {
+    const [info] = await db
+      .insert(personalInfo)
+      .values(insertInfo)
+      .returning();
+    return info;
+  }
+
+  async updatePersonalInfo(id: number, updateData: Partial<InsertPersonalInfo>): Promise<PersonalInfo | undefined> {
+    const [info] = await db
+      .update(personalInfo)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(personalInfo.id, id))
+      .returning();
+    return info || undefined;
   }
 }
 

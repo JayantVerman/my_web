@@ -103,3 +103,59 @@ export type Testimonial = typeof testimonials.$inferSelect;
 export type InsertSkill = z.infer<typeof insertSkillSchema>;
 export type Skill = typeof skills.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;
+
+// Website sections table for flexible content management
+export const websiteSections = pgTable("website_sections", {
+  id: serial("id").primaryKey(),
+  sectionKey: text("section_key").notNull().unique(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  content: text("content"),
+  imageUrl: text("image_url"),
+  buttonText: text("button_text"),
+  buttonUrl: text("button_url"),
+  order: integer("order").default(0),
+  isActive: boolean("is_active").default(true),
+  sectionType: text("section_type").notNull(), // 'hero', 'about', 'services', 'cta', 'custom'
+  customData: text("custom_data"), // JSON string for additional data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertWebsiteSectionSchema = createInsertSchema(websiteSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type WebsiteSection = typeof websiteSections.$inferSelect;
+export type InsertWebsiteSection = z.infer<typeof insertWebsiteSectionSchema>;
+
+// Personal information table
+export const personalInfo = pgTable("personal_info", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  title: text("title").notNull(),
+  bio: text("bio"),
+  email: text("email"),
+  phone: text("phone"),
+  location: text("location"),
+  profileImage: text("profile_image"),
+  resumeUrl: text("resume_url"),
+  linkedinUrl: text("linkedin_url"),
+  githubUrl: text("github_url"),
+  twitterUrl: text("twitter_url"),
+  websiteUrl: text("website_url"),
+  yearsOfExperience: integer("years_of_experience"),
+  currentRole: text("current_role"),
+  company: text("company"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPersonalInfoSchema = createInsertSchema(personalInfo).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type PersonalInfo = typeof personalInfo.$inferSelect;
+export type InsertPersonalInfo = z.infer<typeof insertPersonalInfoSchema>;

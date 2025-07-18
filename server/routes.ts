@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticateToken, requireAdmin, generateToken, type AuthenticatedRequest } from "./middleware/auth";
-import { insertProjectSchema, insertContactSchema, insertSkillSchema, loginSchema } from "@shared/schema";
+import { insertProjectSchema, insertContactSchema, insertSkillSchema, insertWebsiteSectionSchema, insertPersonalInfoSchema, loginSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import helmet from "helmet";
 import cors from "cors";
@@ -224,6 +224,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Skill deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete skill" });
+    }
+  });
+
+  // Website Sections routes
+  app.get("/api/website-sections", async (req, res) => {
+    try {
+      const sections = await storage.getWebsiteSections();
+      res.json(sections);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch website sections" });
+    }
+  });
+
+  app.get("/api/website-sections/:key", async (req, res) => {
+    try {
+      const section = await storage.getWebsiteSectionByKey(req.params.key);
+      if (!section) {
+        return res.status(404).json({ message: "Website section not found" });
+      }
+      res.json(section);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch website section" });
+    }
+  });
+
+  app.post("/api/website-sections", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const sectionData = insertWebsiteSectionSchema.parse(req.body);
+      const section = await storage.createWebsiteSection(sectionData);
+      res.status(201).json(section);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid website section data" });
+    }
+  });
+
+  app.put("/api/website-sections/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const sectionData = insertWebsiteSectionSchema.partial().parse(req.body);
+      const section = await storage.updateWebsiteSection(id, sectionData);
+      if (!section) {
+        return res.status(404).json({ message: "Website section not found" });
+      }
+      res.json(section);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid website section data" });
+    }
+  });
+
+  app.delete("/api/website-sections/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteWebsiteSection(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Website section not found" });
+      }
+      res.json({ message: "Website section deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete website section" });
+    }
+  });
+
+  // Personal Information routes
+  app.get("/api/personal-info", async (req, res) => {
+    try {
+      const info = await storage.getPersonalInfo();
+      res.json(info);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch personal information" });
+    }
+  });
+
+  app.post("/api/personal-info", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const infoData = insertPersonalInfoSchema.parse(req.body);
+      const info = await storage.createPersonalInfo(infoData);
+      res.status(201).json(info);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid personal information data" });
+    }
+  });
+
+  app.put("/api/personal-info/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const infoData = insertPersonalInfoSchema.partial().parse(req.body);
+      const info = await storage.updatePersonalInfo(id, infoData);
+      if (!info) {
+        return res.status(404).json({ message: "Personal information not found" });
+      }
+      res.json(info);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid personal information data" });
     }
   });
 
