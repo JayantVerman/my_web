@@ -141,7 +141,7 @@ export default function GitHubProjects() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white">
       <Header />
-      <div className="container mx-auto py-12 space-y-12">
+      <main className="container mx-auto px-6 pt-24 pb-12 space-y-12"> {/* Added pt-24 for header spacing */}
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -405,7 +405,7 @@ export default function GitHubProjects() {
             <RepoDetails repoFullName={selectedRepo.full_name} />
           </motion.div>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );
