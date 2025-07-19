@@ -15,10 +15,11 @@ import {
   Settings,
   Layout,
   User,
-  Globe
+  Globe,
+  Github
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,8 @@ import AdminProjectForm from "@/components/AdminProjectForm";
 import AdminSkillForm from "@/components/AdminSkillForm";
 import AdminPersonalInfoForm from "@/components/AdminPersonalInfoForm";
 import AdminWebsiteSectionForm from "@/components/AdminWebsiteSectionForm";
+import AdminGithubConfigForm from '@/components/AdminGithubConfigForm';
+import AdminEnvConfigForm from '@/components/AdminEnvConfigForm';
 import type { Project, Contact, Skill, WebsiteSection, PersonalInfo } from "@shared/schema";
 
 interface AuthUser {
@@ -692,6 +695,38 @@ export default function AdminDashboard() {
                   )}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Environment Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Environment Configuration
+              </CardTitle>
+              <CardDescription>
+                Configure environment variables like GitHub token.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminEnvConfigForm />
+            </CardContent>
+          </Card>
+
+          {/* GitHub Projects Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Github className="h-5 w-5" />
+                GitHub Projects
+              </CardTitle>
+              <CardDescription>
+                Configure which GitHub repositories to display on your website.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminGithubConfigForm />
             </CardContent>
           </Card>
         </div>

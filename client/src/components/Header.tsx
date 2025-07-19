@@ -11,6 +11,7 @@ export default function Header() {
     { href: "#skills", label: "Skills" },
     { href: "#projects", label: "Projects" },
     { href: "/freelancing", label: "Freelancing" },
+    { href: "/github-projects", label: "GitHub" },
     { href: "#contact", label: "Contact" },
   ];
 
