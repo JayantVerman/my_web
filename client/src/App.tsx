@@ -10,6 +10,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetail from "@/pages/ProjectDetail";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import GitHubProjects from "@/pages/GitHubProjects";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/freelancing" component={Freelancing} />
       <Route path="/projects" component={Projects} />
       <Route path="/projects/:id" component={ProjectDetail} />
+      <Route path="/github-projects" component={GitHubProjects} />
       <Route path="/admin" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
