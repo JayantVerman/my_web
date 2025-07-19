@@ -18,9 +18,21 @@ export default function Skills() {
   const { data: skills, isLoading, error } = useQuery<Skill[]>({
     queryKey: ["/api/skills"],
     queryFn: async () => {
-      const response = await fetch("/api/skills");
-      if (!response.ok) throw new Error("Failed to fetch skills");
-      return response.json();
+      try {
+        const response = await fetch("/api/skills", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Failed to fetch skills");
+        }
+        return response.json();
+      } catch (error) {
+        console.error("Skills fetch error:", error);
+        throw error;
+      }
     },
   });
 

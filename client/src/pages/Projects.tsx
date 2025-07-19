@@ -11,8 +11,25 @@ import type { Project } from "@shared/schema";
 export default function Projects() {
   const [activeCategory, setActiveCategory] = useState<"all" | "regular" | "freelance">("all");
   
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects, isLoading, error } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/projects", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || "Failed to fetch projects");
+        }
+        return response.json();
+      } catch (error) {
+        console.error("Projects fetch error:", error);
+        throw error;
+      }
+    },
   });
 
   const filteredProjects = projects?.filter(project => {
@@ -94,6 +111,12 @@ export default function Projects() {
                   <div className="h-3 bg-stone-200 rounded w-1/2"></div>
                 </div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 text-lg">
+                Failed to load projects. Please try again later.
+              </p>
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-12">
