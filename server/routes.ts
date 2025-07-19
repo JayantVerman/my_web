@@ -9,6 +9,7 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import dotenv from "dotenv";
 
 // Configure multer for image upload
 const uploadDir = path.join(process.cwd(), "public/uploads");
@@ -361,6 +362,211 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve uploaded files
   app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
+
+  // GitHub Environment Configuration
+  app.get("/api/env-config", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const envConfig = {
+        GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
+      };
+      res.json(envConfig);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch environment configuration" });
+    }
+  });
+
+  app.put("/api/env-config", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { GITHUB_TOKEN } = req.body;
+      const envPath = path.join(process.cwd(), '.env');
+      
+      // Read existing .env file
+      let envContent = '';
+      try {
+        envContent = fs.readFileSync(envPath, 'utf8');
+      } catch (error) {
+        // File doesn't exist, create it
+        envContent = '';
+      }
+
+      // Parse existing content
+      const envConfig = dotenv.parse(envContent);
+      
+      // Update or add GITHUB_TOKEN
+      envConfig.GITHUB_TOKEN = GITHUB_TOKEN;
+      
+      // Convert back to .env format
+      const newEnvContent = Object.entries(envConfig)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('\n');
+      
+      // Write back to file
+      fs.writeFileSync(envPath, newEnvContent);
+      
+      // Update process.env
+      process.env.GITHUB_TOKEN = GITHUB_TOKEN;
+      
+      res.json({ message: "Environment configuration updated successfully" });
+    } catch (error) {
+      console.error("Error updating env config:", error);
+      res.status(500).json({ message: "Failed to update environment configuration" });
+    }
+  });
+
+  // GitHub API Proxy Routes
+  app.get("/api/github/user/:username/repos", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const response = await fetch(`https://api.github.com/users/${req.params.username}/repos`, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch repositories');
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message || "Failed to fetch GitHub repositories" });
+    }
+  });
+
+  app.get("/api/github/repos/:owner/:repo", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { owner, repo } = req.params;
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch repository');
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message || "Failed to fetch GitHub repository" });
+    }
+  });
+
+  app.get("/api/github/repos/:owner/:repo/readme", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { owner, repo } = req.params;
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch README');
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message || "Failed to fetch GitHub README" });
+    }
+  });
+
+  app.get("/api/github/repos/:owner/:repo/languages", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { owner, repo } = req.params;
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/languages`, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch languages');
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message || "Failed to fetch GitHub languages" });
+    }
+  });
+
+  app.get("/api/github/repos/:owner/:repo/contributors", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { owner, repo } = req.params;
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors`, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch contributors');
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message || "Failed to fetch GitHub contributors" });
+    }
+  });
+
+  // GitHub Configuration Routes
+  app.get("/api/github-configs", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const configs = await storage.getGithubConfigs();
+      res.json(configs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch GitHub configurations" });
+    }
+  });
+
+  app.post("/api/github-configs", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const config = await storage.createGithubConfig(req.body);
+      res.status(201).json(config);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create GitHub configuration" });
+    }
+  });
+
+  app.put("/api/github-configs/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const config = await storage.updateGithubConfig(id, req.body);
+      if (!config) {
+        return res.status(404).json({ message: "GitHub configuration not found" });
+      }
+      res.json(config);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update GitHub configuration" });
+    }
+  });
+
+  app.delete("/api/github-configs/:id", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteGithubConfig(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "GitHub configuration not found" });
+      }
+      res.json({ message: "GitHub configuration deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete GitHub configuration" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

@@ -1,4 +1,4 @@
-import { users, projects, contacts, testimonials, skills, websiteSections, personalInfo, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial, type Skill, type InsertSkill, type WebsiteSection, type InsertWebsiteSection, type PersonalInfo, type InsertPersonalInfo } from "@shared/schema";
+import { users, projects, contacts, testimonials, skills, websiteSections, personalInfo, githubConfigs, type User, type InsertUser, type Project, type InsertProject, type Contact, type InsertContact, type Testimonial, type InsertTestimonial, type Skill, type InsertSkill, type WebsiteSection, type InsertWebsiteSection, type PersonalInfo, type InsertPersonalInfo, type GithubConfig, type InsertGithubConfig } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -47,7 +47,14 @@ export interface IStorage {
   // Personal Information methods
   getPersonalInfo(): Promise<PersonalInfo | undefined>;
   createPersonalInfo(info: InsertPersonalInfo): Promise<PersonalInfo>;
-  updatePersonalInfo(id: number, info: Partial<InsertPersonalInfo>): Promise<PersonalInfo | undefined>;
+  updatePersonalInfo(updateData: InsertPersonalInfo): Promise<PersonalInfo>;
+
+  // GitHub Configuration methods
+  getGithubConfigs(): Promise<GithubConfig[]>;
+  getGithubConfig(id: number): Promise<GithubConfig | undefined>;
+  createGithubConfig(config: InsertGithubConfig): Promise<GithubConfig>;
+  updateGithubConfig(id: number, config: Partial<InsertGithubConfig>): Promise<GithubConfig | undefined>;
+  deleteGithubConfig(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -265,6 +272,38 @@ export class DatabaseStorage implements IStorage {
     }
     
     return info;
+  }
+
+  // GitHub Configuration methods
+  async getGithubConfigs(): Promise<GithubConfig[]> {
+    return await db.select().from(githubConfigs).orderBy(githubConfigs.order, githubConfigs.createdAt);
+  }
+
+  async getGithubConfig(id: number): Promise<GithubConfig | undefined> {
+    const [config] = await db.select().from(githubConfigs).where(eq(githubConfigs.id, id));
+    return config || undefined;
+  }
+
+  async createGithubConfig(insertConfig: InsertGithubConfig): Promise<GithubConfig> {
+    const [config] = await db
+      .insert(githubConfigs)
+      .values(insertConfig)
+      .returning();
+    return config;
+  }
+
+  async updateGithubConfig(id: number, updateData: Partial<InsertGithubConfig>): Promise<GithubConfig | undefined> {
+    const [config] = await db
+      .update(githubConfigs)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(githubConfigs.id, id))
+      .returning();
+    return config || undefined;
+  }
+
+  async deleteGithubConfig(id: number): Promise<boolean> {
+    const result = await db.delete(githubConfigs).where(eq(githubConfigs.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 }
 

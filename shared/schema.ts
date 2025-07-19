@@ -163,3 +163,19 @@ export const insertPersonalInfoSchema = createInsertSchema(personalInfo).omit({
 
 export type PersonalInfo = typeof personalInfo.$inferSelect;
 export type InsertPersonalInfo = z.infer<typeof insertPersonalInfoSchema>;
+
+// GitHub Configuration
+export const githubConfigs = pgTable('github_configs', {
+  id: serial('id').primaryKey(),
+  type: text('type').notNull().$type<'user' | 'repository'>(),
+  value: text('value').notNull(),
+  displayName: text('display_name'),
+  description: text('description'),
+  isEnabled: boolean('is_enabled').notNull().default(true),
+  order: integer('order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export type GithubConfig = typeof githubConfigs.$inferSelect;
+export type InsertGithubConfig = typeof githubConfigs.$inferInsert;
