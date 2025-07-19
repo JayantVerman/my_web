@@ -3,6 +3,9 @@ import { Card } from './ui/card';
 import { getAuthHeaders } from '@/lib/auth';
 import { Code, Users, Book } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface RepoDetailsProps {
   repoFullName: string;
@@ -177,11 +180,86 @@ export default function RepoDetails({ repoFullName }: RepoDetailsProps) {
               <div className="h-4 bg-stone-200 rounded w-5/6" />
             </div>
           ) : readme ? (
-            <div className="prose prose-stone max-w-none">
-              <div className="bg-stone-50 p-6 rounded-lg overflow-auto max-h-[500px]">
-                <pre className="whitespace-pre-wrap font-mono text-sm text-stone-800">
+            <div className="prose prose-stone max-w-none dark:prose-invert">
+              <div className="bg-stone-50 dark:bg-stone-900 rounded-lg overflow-auto max-h-[500px] p-6">
+                <ReactMarkdown
+                  components={{
+                    code({node, inline, className, children, ...props}) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                    // Style links
+                    a: ({node, ...props}) => (
+                      <a
+                        {...props}
+                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    ),
+                    // Style headings
+                    h1: ({node, ...props}) => (
+                      <h1 {...props} className="text-2xl font-bold mb-4" />
+                    ),
+                    h2: ({node, ...props}) => (
+                      <h2 {...props} className="text-xl font-bold mb-3" />
+                    ),
+                    h3: ({node, ...props}) => (
+                      <h3 {...props} className="text-lg font-bold mb-2" />
+                    ),
+                    // Style lists
+                    ul: ({node, ...props}) => (
+                      <ul {...props} className="list-disc list-inside mb-4" />
+                    ),
+                    ol: ({node, ...props}) => (
+                      <ol {...props} className="list-decimal list-inside mb-4" />
+                    ),
+                    // Style paragraphs
+                    p: ({node, ...props}) => (
+                      <p {...props} className="mb-4 leading-relaxed" />
+                    ),
+                    // Style blockquotes
+                    blockquote: ({node, ...props}) => (
+                      <blockquote
+                        {...props}
+                        className="border-l-4 border-stone-300 pl-4 italic my-4"
+                      />
+                    ),
+                    // Style tables
+                    table: ({node, ...props}) => (
+                      <div className="overflow-x-auto">
+                        <table
+                          {...props}
+                          className="min-w-full divide-y divide-stone-200 my-4"
+                        />
+                      </div>
+                    ),
+                    th: ({node, ...props}) => (
+                      <th
+                        {...props}
+                        className="px-4 py-2 bg-stone-100 font-semibold text-left"
+                      />
+                    ),
+                    td: ({node, ...props}) => (
+                      <td {...props} className="px-4 py-2 border-t" />
+                    ),
+                  }}
+                >
                   {readme}
-                </pre>
+                </ReactMarkdown>
               </div>
             </div>
           ) : (
