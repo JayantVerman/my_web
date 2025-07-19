@@ -10,6 +10,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
+import { readEnvFile, writeEnvFile } from './env-utils';
 
 // Configure multer for image upload
 const uploadDir = path.join(process.cwd(), "public/uploads");
@@ -366,11 +367,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // GitHub Environment Configuration
   app.get("/api/env-config", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      const envConfig = {
-        GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
-      };
-      res.json(envConfig);
+      const envConfig = readEnvFile();
+      res.json({
+        GITHUB_TOKEN: envConfig.GITHUB_TOKEN || '',
+      });
     } catch (error) {
+      console.error('Error reading environment config:', error);
       res.status(500).json({ message: "Failed to fetch environment configuration" });
     }
   });
@@ -378,33 +380,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/env-config", authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const { GITHUB_TOKEN } = req.body;
-      const envPath = path.join(process.cwd(), '.env');
       
-      // Read existing .env file
-      let envContent = '';
-      try {
-        envContent = fs.readFileSync(envPath, 'utf8');
-      } catch (error) {
-        // File doesn't exist, create it
-        envContent = '';
-      }
-
-      // Parse existing content
-      const envConfig = dotenv.parse(envContent);
-      
-      // Update or add GITHUB_TOKEN
-      envConfig.GITHUB_TOKEN = GITHUB_TOKEN;
-      
-      // Convert back to .env format
-      const newEnvContent = Object.entries(envConfig)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('\n');
-      
-      // Write back to file
-      fs.writeFileSync(envPath, newEnvContent);
-      
-      // Update process.env
-      process.env.GITHUB_TOKEN = GITHUB_TOKEN;
+      // Update .env file and process.env
+      writeEnvFile({ GITHUB_TOKEN });
       
       res.json({ message: "Environment configuration updated successfully" });
     } catch (error) {
